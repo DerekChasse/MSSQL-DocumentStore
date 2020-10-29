@@ -4,18 +4,16 @@ using System.Text.Json;
 
 namespace SqlDocStore.Model
 {
-    public abstract class DocumentBacked<T>
+    public abstract class DocumentBacked<T> 
         where T : class, new()
     {
-        internal const string FieldName = nameof(document);
-
-        protected string document;
+        protected string _document;
 
         [NotMapped]
         public T Document 
         {
-            get => this.Deserialize(this.document);
-            set => this.document = this.Serialize(value);
+            get => this.Deserialize(this._document);
+            set => this._document = this.Serialize(value);
         }
 
         protected virtual string Serialize(T item)

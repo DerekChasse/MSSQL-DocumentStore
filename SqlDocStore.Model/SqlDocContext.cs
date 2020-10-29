@@ -16,26 +16,14 @@ namespace SqlDocStore.Model
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
-            /*
-             * I'm trying to make IsDocumentBacked only callable when configuring entities
-             * which ARE document backed, to prevent accidentally calling this on a "normal" entity.
-             * 
-             * I'm also trying to be clever to avoid magic strings. Don't judge, or do, whatever.
-             */
-
-            // This is jank
-            modelBuilder.Entity<BlogPostDocument>().IsDocumentBacked<BlogPostDocument,BlogPost>();
-
-            // This is what I want
-            //modelBuilder.Entity<BlogPostDocument>().IsDocumentBacked();
+            modelBuilder.Entity<BlogPostDocument>().IsDocumentBacked<BlogPostDocument, BlogPost>();
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=localhost;Database=SqlDocStore;Trusted_Connection=True;");
+            optionsBuilder.UseSqlServer(@"Data Source=localhost;Initial Catalog=SqlDocStore;Integrated Security=True");
         }
 
-        DbSet<BlogPostDocument> BlogPosts { get; set; }
+        public DbSet<BlogPostDocument> BlogPosts { get; set; }
     }
 }
