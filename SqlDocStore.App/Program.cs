@@ -7,6 +7,8 @@ using System.Text.Json;
 
 using Bogus;
 
+using Microsoft.EntityFrameworkCore;
+
 using SqlDocStore.App.Fakers;
 using SqlDocStore.Model;
 
@@ -22,7 +24,7 @@ namespace SqlDocStore.App
 
             IEnumerable<BlogPostDocument> blogPosts = new List<BlogPostDocument>();
 
-            int blogsToGenerate = 250;
+            int blogsToGenerate = 2;
 
             TimeThis($"Generating {blogsToGenerate} Blogs", () =>
             {
@@ -50,7 +52,25 @@ namespace SqlDocStore.App
             });
 
             Console.WriteLine($"Here are {blogsToGenerate} blog authors and the number of comments");
-            Console.WriteLine(JsonSerializer.Serialize(blogPostDocuments.Select(bp => new { Author = bp.Document.Author.Name, Comments = bp.Document.Comments.Count }) , new JsonSerializerOptions { WriteIndented = true }));
+            Console.WriteLine(JsonSerializer.Serialize(blogPostDocuments.Select(bp => new { Author = bp.Document.Author.Name, Comments = bp.Document.Comments.Count }), new JsonSerializerOptions { WriteIndented = true }));
+
+            string query;
+
+            Console.WriteLine("Enter a search term:");
+
+            query = Console.ReadLine();
+            IQueryable<BlogPostDocument> searchResults = null;
+            
+            TimeThis("Performing Full Text Search", () => 
+            {
+                searchResults = from bp in context.BlogPosts
+                        where EF.Functions.FreeText(nameof(bp.Document), query)
+                        select bp;
+
+                //searchResults = context.BlogPosts.Where(bp => EF.Functions.FreeText(nameof(bp.Document), query));
+            });
+
+            Console.WriteLine($"Found {searchResults.Count()} blogs with that search term.");
         }
 
         static void TimeThis(string message, Action action)
